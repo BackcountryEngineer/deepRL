@@ -79,12 +79,14 @@ class DQNetwork:
         # Minibatch MSE => (1/batch_size) * (R + gamma * Q(s',a') - Q(s,a))^2
         with tf.GradientTape() as tape:
             q_values = self.calculate_q_values(states, actions)
-            target_q_values = self.calculate_target_q_values(rewards, next_states, dones)
+
+            with tape.stop_recording():
+                target_q_values = self.calculate_target_q_values(rewards, next_states, dones)
 
             loss_value = self.loss(q_values, target_q_values)
 
-            grads = tape.gradient(loss_value, self.network.trainable_variables)
-            self.optimizer.apply_gradients(zip(grads, self.network.trainable_variables))
+        grads = tape.gradient(loss_value, self.network.trainable_variables)
+        self.optimizer.apply_gradients(zip(grads, self.network.trainable_variables))
         
         return loss_value
 
@@ -95,22 +97,24 @@ class DQNetwork:
 
             loss_value = self.loss(q_values, target_q_values)
 
-            grads = tape.gradient(loss_value, self.network.trainable_variables)
-            self.optimizer.apply_gradients(zip(grads, self.network.trainable_variables))
+        grads = tape.gradient(loss_value, self.network.trainable_variables)
+        self.optimizer.apply_gradients(zip(grads, self.network.trainable_variables))
         
         return loss_value
 
     def stochastic_update(self, state, action, reward, next_state, done):
         with tf.GradientTape() as tape:
             action_q_values = self.network(state)
-            next_q_values = self.network(next_state)
+
+            with tape.stop_recording():
+                next_q_values = self.network(next_state)
 
             target_q = reward + self.gamma * np.max(next_q_values) * np.logical_not(done)
 
             loss_value = self.loss(action_q_values[0, action], target_q)
 
-            grads = tape.gradient(loss_value, self.network.trainable_variables)
-            self.optimizer.apply_gradients(zip(grads, self.network.trainable_variables))
+        grads = tape.gradient(loss_value, self.network.trainable_variables)
+        self.optimizer.apply_gradients(zip(grads, self.network.trainable_variables))
 
         return loss_value
 
