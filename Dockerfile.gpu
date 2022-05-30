@@ -9,4 +9,5 @@ RUN python3 -m pip install --upgrade pip && \
     gym[atari,accept-rom-license] \
     opencv-python \
     pygame \
-    tensorflow-probability
+    tensorflow-probability \
+    scipy
