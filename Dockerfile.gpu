@@ -1,13 +1,15 @@
 FROM tensorflow/tensorflow:latest-gpu
 
 RUN apt-get -y update && \
-    apt-get -y upgrade && \
-    apt-get install -y python3-opencv
+    apt-get -y upgrade
+
+RUN apt-get install -y xvfb ffmpeg
 
 RUN python3 -m pip install --upgrade pip && \
     pip3 install \
-    gym[atari,accept-rom-license] \
-    opencv-python \
-    pygame \
-    tensorflow-probability \
-    scipy
+    # gym[atari,accept-rom-license] \
+    tf-agents[reverb] \
+    matplotlib \
+    pybullet \
+    Pillow
+    
